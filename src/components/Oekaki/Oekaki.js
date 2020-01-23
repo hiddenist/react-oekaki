@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import OekakiPage from './OekakiPage';
 import Brush from './Tools/Brush';
 import Eraser from './Tools/Eraser';
+import ToolIcon from './ToolIcon';
 import './Oekaki.css';
 import { getEventPositions } from '../helpers';
 
@@ -46,6 +47,13 @@ export default class Oekaki extends Component {
     state.action = action;
     this.history.push(state);
     this.redoHistory = [];
+  }
+
+  setCurrentTool(toolName) {
+    console.log(toolName)
+    if (toolName in this.tools) {
+      this.currentTool = toolName;
+    }
   }
 
   startDrawing(e) {
@@ -97,7 +105,28 @@ export default class Oekaki extends Component {
         onTouchMove={this.drag.bind(this)}
         onTouchEnd={this.stopDrawing.bind(this)}
       >
-        <OekakiPage ref={el => (this.page = el)} oekaki={this} />
+        <div className="oekaki-rows">
+          <div className="oekaki-toolbar">
+            {Object.entries(this.tools).map(
+              ([toolKey, tool]) => {
+                // maybe not necessary
+                let onClickClosure = (
+                  key => (_ => this.setCurrentTool(key))
+                )(toolKey);
+
+                return (
+                  <ToolIcon
+                    onClick={onClickClosure.bind(this)}
+                    key={toolKey}
+                    icon={tool.icon}
+                    name={tool.name} />
+                )
+              }
+            )}
+          </div>
+
+          <OekakiPage ref={el => (this.page = el)} oekaki={this} />
+        </div>
       </div>
     )
   }

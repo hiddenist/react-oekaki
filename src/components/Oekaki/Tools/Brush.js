@@ -4,6 +4,8 @@ export default class Brush extends DrawingTool {
   color;
   size;
   opacity;
+  icon = "brush";
+  name = "Brush";
 
   constructor(color, size, opacity) {
     super();

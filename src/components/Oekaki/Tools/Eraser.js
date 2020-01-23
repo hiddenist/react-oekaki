@@ -1,6 +1,9 @@
 import Brush from './Brush';
 
 export default class Eraser extends Brush {
+  icon = "eraser";
+  name = "Eraser";
+
   constructor(size, opacity) {
     super(size, opacity, 'transparent');
 

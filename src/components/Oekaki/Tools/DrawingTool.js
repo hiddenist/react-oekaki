@@ -1,6 +1,7 @@
 import Point from './Point';
+import Tool from './Tool';
 
-export default class DrawingTool {
+export default class DrawingTool extends Tool {
   position = null;
   path = [];
 
