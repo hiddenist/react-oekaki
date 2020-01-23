@@ -19,7 +19,7 @@ export default class OekakiPage extends Component {
     }
 
     this.layers.push(layer);
-    this.activeLayerIdx = this.layers.length - 1;
+    this.setActiveLayer(this.layers.length - 1);
 
     return layer;
   }
@@ -44,7 +44,7 @@ export default class OekakiPage extends Component {
           }
         )}
         
-        <WorkingCanvas ref="workingCanvas" oekaki={this.oekaki} />
+        <WorkingCanvas ref={el => (this.oekaki.workingCanvas = el)} oekaki={this.oekaki} />
       </div>
     )
   }
