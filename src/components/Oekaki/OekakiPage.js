@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import WorkingCanvas from './WorkingCanvas';
+import WorkingLayer from './WorkingLayer';
 import Layer from './Layer';
 
 export default class OekakiPage extends Component {
@@ -24,13 +24,22 @@ export default class OekakiPage extends Component {
     return layer;
   }
 
+  startDrawing(e) {
+    e.preventDefault();
+    this.oekaki.startDrawing(e);
+  }
+
   getLayer = (i) => this.layers[i].layer;
   setActiveLayer = (i) => this.activeLayerIdx = i;
   getActiveLayer = () => this.getLayer(this.activeLayerIdx);
 
   render() {
     return (
-      <div className="oekaki-page" style={{ width: this.oekaki.width + "px", height: this.oekaki.height + "px" }}>
+      <div className="oekaki-page"
+
+        onMouseDown={this.startDrawing.bind(this)}
+        onTouchStart={this.startDrawing.bind(this)}
+        style={{ width: this.oekaki.width + "px", height: this.oekaki.height + "px" }}>
         
         {this.layers && this.layers.map(
           (layer, idx) => {
@@ -44,7 +53,7 @@ export default class OekakiPage extends Component {
           }
         )}
         
-        <WorkingCanvas ref={el => (this.oekaki.workingCanvas = el)} oekaki={this.oekaki} />
+        <WorkingLayer ref={el => (this.oekaki.workingCanvas = el)} oekaki={this.oekaki} />
       </div>
     )
   }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import OekakiPage from './OekakiPage';
-import Brush from './Brush';
+import Brush from './Tools/Brush';
+import Eraser from './Tools/Eraser';
 import './Oekaki.css';
 import { getEventPositions } from '../helpers';
 
@@ -11,6 +12,7 @@ export default class Oekaki extends Component {
   workingCanvas;
   history = [];
   redoHistory = [];
+  currentTool;
   flags = {
     "drawing": false
   };
@@ -19,7 +21,17 @@ export default class Oekaki extends Component {
     super();
     this.width = width;
     this.height = height;
-    this.brush = new Brush();
+    this.tools = {
+      brush: new Brush('#000000', 10, 100),
+      eraser: new Eraser(10, 100)
+    };
+    this.currentTool = "brush";
+
+    console.log(this);
+  }
+
+  get tool() {
+    return this.tools[this.currentTool];
   }
 
   logAction(action, state) {
@@ -39,9 +51,10 @@ export default class Oekaki extends Component {
   startDrawing(e) {
     this.flags.drawing = true;
     this.draw(e);
+    this.page.getActiveLayer().hide();
   }
 
-  drawMove(e) {
+  drag(e) {
     e.preventDefault();
     if (this.flags.drawing) {
       this.draw(e);
@@ -50,21 +63,23 @@ export default class Oekaki extends Component {
 
   draw(e) {
     let posish = getEventPositions(e, this.workingCanvas.canvas);
-    this.brush.addToPath(posish);
-    this.workingCanvas.clear();
-    this.brush.draw(this.workingCanvas.getContext());
+    let activeLayer = this.page.getActiveLayer();
+    this.tool.addToPath(posish);
+
+    this.workingCanvas.clear().copyLayer(activeLayer);
+
+    this.tool.draw(this.workingCanvas.getContext());
   }
-  
+
   stopDrawing(e) {
     e.preventDefault();
     if (this.flags.drawing) {
-      if (this.brush.isDot()) {
-        this.draw(e);
-      }
+      let activeLayer = this.page.getActiveLayer();
 
-      this.workingCanvas.commit(this.page.getActiveLayer());
+      this.workingCanvas.commitToLayer(activeLayer);
+      activeLayer.show();
 
-      let stroke = this.brush.clearPath();
+      let stroke = this.tool.clearPath();
       this.logAction("brush", {
         stroke: stroke
       });
@@ -77,9 +92,9 @@ export default class Oekaki extends Component {
   render() {
     return (
       <div className="oekaki-container"
-        onMouseMove={this.drawMove.bind(this)}
+        onMouseMove={this.drag.bind(this)}
         onMouseUp={this.stopDrawing.bind(this)}
-        onTouchMove={this.drawMove.bind(this)}
+        onTouchMove={this.drag.bind(this)}
         onTouchEnd={this.stopDrawing.bind(this)}
       >
         <OekakiPage ref={el => (this.page = el)} oekaki={this} />
