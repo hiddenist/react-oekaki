@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 
 export default class Layer extends Component {
-  constructor({ width, height }) {
+  constructor({ width, height, name }) {
     super();
     this.width = width;
     this.height = height;
+    this.name = name;
   }
 
   get canvas() {
@@ -37,6 +38,7 @@ export default class Layer extends Component {
   render() {
     return (
       <canvas ref="canvas"
+        data-layer-name={this.name}
         width={this.width}
         height={this.height}></canvas>
     )

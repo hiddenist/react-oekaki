@@ -3,7 +3,7 @@ import OekakiPage from './OekakiPage';
 import Brush from './Tools/Brush';
 import Eraser from './Tools/Eraser';
 import ToolIcon from './ToolIcon';
-import './Oekaki.css';
+import './Oekaki.scss';
 import { getEventPositions } from '../helpers';
 
 export default class Oekaki extends Component {
@@ -17,6 +17,10 @@ export default class Oekaki extends Component {
   flags = {
     "drawing": false
   };
+  state = {
+    layers: [],
+    activeLayerIdx: null
+  };
 
   constructor({width, height}) {
     super();
@@ -26,13 +30,15 @@ export default class Oekaki extends Component {
       brush: new Brush('#000000', 10, 100),
       eraser: new Eraser(10, 100)
     };
-    this.currentTool = "brush";
-
     console.log(this);
   }
 
   get tool() {
     return this.tools[this.currentTool];
+  }
+
+  componentDidMount() {
+    this.setCurrentTool("brush");
   }
 
   logAction(action, state) {
@@ -50,9 +56,16 @@ export default class Oekaki extends Component {
   }
 
   setCurrentTool(toolName) {
-    console.log(toolName)
     if (toolName in this.tools) {
       this.currentTool = toolName;
+
+      for (var curToolName in this.tools) {
+        if (curToolName === toolName) {
+          this.tools[curToolName].setActive(true);
+        } else {
+          this.tools[curToolName].setActive(false);
+        }
+      }
     }
   }
 
@@ -96,6 +109,10 @@ export default class Oekaki extends Component {
     }
   }
 
+  updateLayers(layers) {
+    // Update the layers list in the toolbar
+    this.setState({layers: layers});
+  }
 
   render() {
     return (
@@ -110,19 +127,49 @@ export default class Oekaki extends Component {
             {Object.entries(this.tools).map(
               ([toolKey, tool]) => {
                 // maybe not necessary
-                let onClickClosure = (
+                let toolOnClickClosure = (
                   key => (_ => this.setCurrentTool(key))
                 )(toolKey);
 
                 return (
                   <ToolIcon
-                    onClick={onClickClosure.bind(this)}
+                    onClick={toolOnClickClosure.bind(this)}
                     key={toolKey}
-                    icon={tool.icon}
-                    name={tool.name} />
+                    tool={tool} />
                 )
               }
             )}
+
+            <div className="oekaki-layers oekaki-panel">
+              <div className="oekaki-panel-title">Layers</div>
+              <div className="oekaki-panel-body">
+                {this.state.layers.slice(0).reverse().map((layer, i) => {
+                    let idx = this.state.layers.length - i - 1;
+                    return (<div
+                        key={idx}
+                        onClick={() => this.page.setActiveLayer(idx)}
+                        className={idx === this.state.activeLayerIdx? "oekaki-layer oekaki-layer-active" : "oekaki-layer"}>
+                          {layer.name}
+                        </div>)
+                })}
+                <div className="oekaki-layer-tools">
+                  <div className="oekaki-layer-tool" onClick={() => {
+                      let layerName = prompt("Enter Layer Name", "Layer " + this.state.layers.length);
+                      if (layerName) {
+                        this.page.addLayer(layerName);
+                      }
+                    }
+                  } title="Add New">+</div>
+
+                  { this.state.layers.length > 1 && !this.state.layers[this.state.activeLayerIdx].isBg && <div className="oekaki-layer-tool" onClick={() => {
+                      if (window.confirm("Are you sure you want to remove the current layer?")) {
+                        this.page.removeLayer(this.state.activeLayerIdx);
+                      }
+                    }
+                  } title="Add New">-</div> }
+                </div>
+              </div>
+            </div>
           </div>
 
           <OekakiPage ref={el => (this.page = el)} oekaki={this} />

@@ -1,14 +1,33 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-export default ({onClick, icon, name, isActive}) => {
-	let className = "oekaki-tool";
-	if (isActive) {
-		className += " oekaki-tool-active";
+export default class ToolIcon extends Component {
+	className;
+	tool;
+	state = {
+		isActive: null,
+		className: ''
+	};
+
+	constructor({onClick, tool, isActive}) {
+		super();
+		
+		this.state.isActive = isActive;
+		this.tool = tool;
+		this.tool.setIconObject(this);
+		this.onClick = onClick;
 	}
 
-	return (
-		<div onClick={onClick} className={className} title={name}>
-			{name}
-		</div>
-	)
+	setActive(isActiveBool) {
+		this.setState({
+			isActive: isActiveBool
+		});
+	}
+
+	render() {
+		return (
+			<div onClick={this.onClick} className={this.state.isActive? "oekaki-tool oekaki-tool-active" : "oekaki-tool"} title={this.tool.name}>
+				{this.tool.name}
+			</div>
+		)
+	}
 }

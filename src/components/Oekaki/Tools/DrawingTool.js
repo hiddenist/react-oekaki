@@ -4,6 +4,7 @@ import Tool from './Tool';
 export default class DrawingTool extends Tool {
   position = null;
   path = [];
+  iconObject;
 
   getPath() {
     return this.path;
@@ -93,5 +94,19 @@ export default class DrawingTool extends Tool {
 
   getPosition() {
     return {...this.position};
+  }
+
+  setIconObject(toolIcon) {
+    this.iconObject = toolIcon;
+  }
+
+  setActive(activeBool) {
+    if (!this.iconObject) {
+      console.log("No icon object");
+      return;
+    }
+    
+    console.log(this.iconObject, activeBool);
+    this.iconObject.setActive(activeBool);
   }
 }
