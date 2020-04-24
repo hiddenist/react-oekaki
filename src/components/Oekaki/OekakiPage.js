@@ -47,7 +47,7 @@ export default class OekakiPage extends Component {
   removeLayer(i) {
     var layer = this.getLayer(i);
 
-    if (layer.isBg || this.layers.length == 1) {
+    if (layer.isBg || this.layers.length === 1) {
       // Can't remove bg layer
       return false;
     }
@@ -104,7 +104,9 @@ export default class OekakiPage extends Component {
             }
         )}
         
-        <WorkingLayer ref={el => (this.oekaki.workingCanvas = el)} oekaki={this.oekaki} />
+        <WorkingLayer ref={el => (this.oekaki.workingCanvas = el)}
+                  width={this.oekaki.width}
+                  height={this.oekaki.height} />
       </div>
     )
   }
